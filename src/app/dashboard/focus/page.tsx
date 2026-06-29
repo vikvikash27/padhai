@@ -24,26 +24,30 @@ export default async function FocusPage() {
 
   if (!goals || goals.length === 0) redirect('/dashboard')
 
-  // Streak summary — non-fatal
-  let streak = { currentStreak: 0, longestStreak: 0, frozenToday: false, lastStudyDate: null as string | null }
-  try {
-    const s = await getStreakSummary()
-    streak = {
-      currentStreak: s.currentStreak,
-      longestStreak: s.longestStreak,
-      frozenToday: s.frozenToday,
-      lastStudyDate: s.lastStudyDate,
-    }
-  } catch {}
-
-  // Check if already checked-in today
+  // Streak summary + today's check-in — run in parallel (non-fatal streak)
   const todayStr = new Date().toISOString().split('T')[0]
-  const { data: todaySession } = await supabase
-    .from('study_sessions')
-    .select('id')
-    .eq('user_id', user.id)
-    .eq('session_date', todayStr)
-    .maybeSingle()
+  let streak = { currentStreak: 0, longestStreak: 0, frozenToday: false, lastStudyDate: null as string | null }
+
+  const [streakResult, todaySessionResult] = await Promise.all([
+    getStreakSummary().catch(() => null),
+    supabase
+      .from('study_sessions')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('session_date', todayStr)
+      .maybeSingle(),
+  ])
+
+  if (streakResult) {
+    streak = {
+      currentStreak: streakResult.currentStreak,
+      longestStreak: streakResult.longestStreak,
+      frozenToday: streakResult.frozenToday,
+      lastStudyDate: streakResult.lastStudyDate,
+    }
+  }
+
+  const todaySession = todaySessionResult.data
 
   return (
     <FocusMode

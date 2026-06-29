@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Target, Calendar, Award, Settings, LogOut, Flame, Sparkles } from 'lucide-react'
+import { LayoutDashboard, Target, Calendar, Award, Settings, LogOut, Flame, Sparkles, X } from 'lucide-react'
 import { signOut } from '@/app/auth/actions'
 import { createClient } from '@/utils/supabase/client'
 
@@ -16,6 +16,17 @@ const navItems = [
 export function Sidebar() {
   const pathname = usePathname()
   const [streakCount, setStreakCount] = useState<number | null>(null)
+  const [isOpen, setIsOpen] = useState(false)
+
+  useEffect(() => {
+    setIsOpen(false)
+  }, [pathname])
+
+  useEffect(() => {
+    const handleToggle = () => setIsOpen((prev) => !prev)
+    window.addEventListener('toggle-sidebar', handleToggle)
+    return () => window.removeEventListener('toggle-sidebar', handleToggle)
+  }, [])
 
   useEffect(() => {
     const supabase = createClient()
@@ -44,8 +55,29 @@ export function Sidebar() {
   }, [])
 
   return (
-    <aside className="w-64 border-r border-zinc-800/80 bg-zinc-950/60 backdrop-blur-xl flex flex-col justify-between p-6 h-screen sticky top-0 shrink-0">
-      <div className="space-y-8">
+    <>
+      {/* Backdrop overlay behind the open sidebar on mobile */}
+      {isOpen && (
+        <div
+          onClick={() => setIsOpen(false)}
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
+        />
+      )}
+      <aside
+        className={`w-64 border-r border-zinc-800/80 bg-zinc-950/60 backdrop-blur-xl flex flex-col justify-between p-6 h-screen shrink-0 transition-all duration-300
+          ${isOpen ? 'fixed z-50 top-0 left-0 h-full flex md:sticky md:z-30 md:top-0 md:h-screen' : 'hidden md:flex md:sticky md:top-0 md:h-screen'}
+        `}
+      >
+      {/* Close button — mobile only */}
+        <button
+          onClick={() => setIsOpen(false)}
+          className="md:hidden absolute top-4 right-4 p-1.5 text-zinc-500 hover:text-zinc-100 hover:bg-zinc-900 rounded-lg transition-all cursor-pointer"
+          aria-label="Close sidebar"
+        >
+          <X className="w-4 h-4" />
+        </button>
+
+        <div className="space-y-8">
         {/* Brand Header */}
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 via-purple-500 to-blue-500 flex items-center justify-center text-zinc-900 font-black shadow-lg shadow-purple-500/20">
@@ -73,6 +105,7 @@ export function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={() => setIsOpen(false)}
                 className={`flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all group relative cursor-pointer ${
                   isActive
                     ? 'bg-zinc-900 text-zinc-100 border border-zinc-800'
@@ -102,7 +135,7 @@ export function Sidebar() {
           </div>
         </div>
 
-        <form action={signOut}>
+        <form action={signOut} className="flex md:flex">
           <button
             type="submit"
             className="w-full flex items-center gap-3 px-4 py-3 text-zinc-500 hover:text-red-400 hover:bg-red-950/10 rounded-xl text-sm font-medium transition-all cursor-pointer border border-transparent hover:border-red-950/20"
@@ -112,7 +145,8 @@ export function Sidebar() {
           </button>
         </form>
       </div>
-    </aside>
+      </aside>
+    </>
   )
 }
 

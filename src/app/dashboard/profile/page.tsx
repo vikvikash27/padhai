@@ -30,10 +30,10 @@ export default async function ProfilePage() {
     <div className="min-h-screen bg-zinc-950 flex font-sans">
       <Sidebar />
 
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 w-full overflow-x-hidden">
         <TopNavbar />
 
-        <div className="flex-1 p-8 space-y-6 overflow-y-auto max-w-2xl w-full mx-auto">
+        <div className="flex-1 p-4 md:p-8 space-y-6 overflow-y-auto max-w-2xl w-full mx-auto min-w-0 overflow-x-hidden">
           <div className="space-y-1">
             <h1 className="text-2xl font-extrabold tracking-tight text-zinc-100">
               Profile Settings

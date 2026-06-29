@@ -1,7 +1,6 @@
 import React from 'react'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
-import Link from 'next/link'
 import { subDays, differenceInCalendarDays } from 'date-fns'
 import { Sidebar } from '@/components/dashboard/sidebar'
 import { TopNavbar } from '@/components/dashboard/top-navbar'
@@ -15,6 +14,7 @@ import { RecentActivity } from '@/components/dashboard/recent-activity'
 import { QuoteWidget } from '@/components/dashboard/quote-widget'
 import { InactivityBanner } from '@/components/dashboard/inactivity-banner'
 import { WeeklyInsightsWidget } from '@/components/dashboard/weekly-insights-widget'
+import { FocusSessionLink } from '@/components/dashboard/focus-session-link'
 import { getStreakSummary } from '@/lib/streak-service'
 import { fetchFreezeDays } from '@/lib/streak-queries'
 import { fetchLastReminder } from '@/lib/reminder-queries'
@@ -258,10 +258,10 @@ export default async function DashboardPage() {
       <Sidebar />
 
       {/* Main Panel */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 w-full overflow-x-hidden">
         <TopNavbar />
 
-        <div className="flex-1 p-8 space-y-6 overflow-y-auto max-w-7xl w-full mx-auto">
+        <div className="flex-1 p-4 md:p-8 space-y-6 overflow-y-auto max-w-7xl w-full mx-auto min-w-0 overflow-x-hidden">
           {/* Header */}
           <div className="space-y-1">
             <h1 className="text-2xl font-extrabold tracking-tight text-zinc-100">
@@ -273,23 +273,23 @@ export default async function DashboardPage() {
           </div>
 
           {/* Profile Overview Card */}
-          <div className="p-6 bg-zinc-900/60 backdrop-blur-xl border border-zinc-800 rounded-2xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="p-6 bg-zinc-900/60 backdrop-blur-xl border border-zinc-800 rounded-2xl relative overflow-hidden flex flex-col md:flex-row gap-4 justify-between">
             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-cyan-500 via-purple-500 to-blue-500 opacity-40" />
             
             {/* Left: User Details */}
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-cyan-500 via-purple-500 to-blue-500 flex items-center justify-center text-zinc-950 font-black text-xl shadow-lg shadow-purple-500/10">
+            <div className="flex items-center gap-4 min-w-0">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-cyan-500 via-purple-500 to-blue-500 flex items-center justify-center text-zinc-950 font-black text-xl shadow-lg shadow-purple-500/10 shrink-0">
                 {profile.full_name?.[0]?.toUpperCase() || profile.email?.[0]?.toUpperCase() || 'U'}
               </div>
-              <div>
-                <h2 className="text-lg font-bold text-zinc-100 flex items-center gap-2">
-                  {profile.full_name || 'Anonymous User'}
-                  <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-cyan-400 font-semibold tracking-wider uppercase">
+              <div className="min-w-0">
+                <h2 className="text-lg font-bold text-zinc-100 flex items-center gap-2 truncate">
+                  <span className="truncate break-all">{profile.full_name || 'Anonymous User'}</span>
+                  <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-cyan-400 font-semibold tracking-wider uppercase shrink-0">
                     {profile.role}
                   </span>
                 </h2>
-                <p className="text-xs text-zinc-400 mt-0.5">{profile.email}</p>
-                <p className="text-xs text-zinc-500 mt-1">
+                <p className="text-xs text-zinc-400 mt-0.5 truncate break-all">{profile.email}</p>
+                <p className="text-xs text-zinc-500 mt-1 truncate break-words">
                   {profile.role === 'Student' ? 'Academic Field: ' : 'Profession: '}
                   <span className="text-zinc-300 font-medium">
                     {profile.role === 'Student' ? profile.academic_field : profile.profession}
@@ -315,13 +315,7 @@ export default async function DashboardPage() {
                     </span>
                   </div>
                 </div>
-                <Link
-                  href="/dashboard/focus"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-cyan-900/20 transition-all active:scale-[0.98] cursor-pointer"
-                >
-                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
-                  Start Focus Session
-                </Link>
+                <FocusSessionLink />
               </div>
             )}
           </div>
@@ -331,7 +325,7 @@ export default async function DashboardPage() {
 
           {/* Grid Level 1: Stats & Check-in */}
           <StaggerContainer>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <StaggerItem>
                 <StreakCard data={streakData} />
               </StaggerItem>
