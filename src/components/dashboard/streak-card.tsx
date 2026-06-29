@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect } from "react";
 import { format, subDays, startOfDay } from "date-fns";
 import { Flame, Snowflake, Trophy, Zap, TrendingUp } from "lucide-react";
 import type { StreakSummary } from "@/lib/streak-service";
+import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -163,6 +165,17 @@ export function StreakCard({ data }: StreakCardProps = {}) {
     ? buildRecentDays(data.recentSessionDates ?? [], data.recentFreezeDates ?? [])
     : MOCK_RECENT_DAYS;
 
+  const count = useMotionValue(0);
+  const rounded = useTransform(count, (latest) => Math.round(latest));
+
+  useEffect(() => {
+    const controls = animate(count, currentStreak, {
+      duration: 1.2,
+      ease: "easeOut",
+    });
+    return () => controls.stop();
+  }, [currentStreak, count]);
+
   const message = getMotivationalMessage(
     currentStreak,
     studiedToday,
@@ -170,7 +183,13 @@ export function StreakCard({ data }: StreakCardProps = {}) {
   );
 
   return (
-    <div className="relative bg-zinc-950/80 backdrop-blur-2xl border border-zinc-800/60 rounded-2xl p-5 overflow-hidden shadow-2xl group">
+    <motion.div
+      whileHover={{ scale: 1.015, borderColor: "var(--border-strong)" }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ duration: 0.15 }}
+      style={{ boxShadow: "0 0 32px var(--accent-glow)" }}
+      className="relative bg-zinc-950/80 backdrop-blur-2xl border border-zinc-800/60 rounded-2xl p-5 overflow-hidden shadow-2xl group"
+    >
 
       {/* — ambient glow behind the card — */}
       <div className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-[radial-gradient(ellipse_at_top_left,rgba(249,115,22,0.07),transparent_60%)]" />
@@ -187,7 +206,7 @@ export function StreakCard({ data }: StreakCardProps = {}) {
 
           {/* — big streak number — */}
           <div className="flex items-end gap-2">
-            <span
+            <motion.span
               className="text-5xl font-black text-transparent bg-clip-text leading-none"
               style={{
                 backgroundImage:
@@ -195,8 +214,8 @@ export function StreakCard({ data }: StreakCardProps = {}) {
                 filter: "drop-shadow(0 0 18px rgba(249,115,22,0.55))",
               }}
             >
-              {currentStreak}
-            </span>
+              {rounded}
+            </motion.span>
             <span className="text-lg font-bold text-zinc-400 mb-1">days</span>
           </div>
         </div>
@@ -288,6 +307,6 @@ export function StreakCard({ data }: StreakCardProps = {}) {
 
       {/* — bottom glow line — */}
       <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-orange-500/20 to-transparent" />
-    </div>
+    </motion.div>
   );
 }

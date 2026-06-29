@@ -21,6 +21,8 @@ import { fetchLastReminder } from '@/lib/reminder-queries'
 import { calcInactiveDays, getInactivityRisk } from '@/lib/inactivity'
 import { buildWeeklyReport } from '@/lib/weekly-report-service'
 import type { WeeklyReport } from '@/lib/weekly-types'
+import { PageWrapper } from '@/components/motion/PageWrapper'
+import { StaggerContainer, StaggerItem } from '@/components/motion/StaggerContainer'
 
 function getStandingAndLevel(xpValue: number) {
   if (xpValue < 200) {
@@ -250,7 +252,8 @@ export default async function DashboardPage() {
   recentActivities = recentActivities.slice(0, 4)
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex font-sans">
+    <PageWrapper>
+      <div className="min-h-screen bg-zinc-950 flex font-sans">
       {/* Navigation Sidebar */}
       <Sidebar />
 
@@ -327,19 +330,27 @@ export default async function DashboardPage() {
           {inactivityProps && <InactivityBanner {...inactivityProps} />}
 
           {/* Grid Level 1: Stats & Check-in */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <StreakCard data={streakData} />
-            <ProgressCard
-              xp={xp}
-              level={level}
-              standing={standing}
-              percentToNext={percentToNext}
-              consistencyScore={consistencyScore}
-              completedMilestones={completedMilestonesCount}
-              totalMilestones={totalMilestonesCount}
-            />
-            <DailyCheckin goals={checkinGoals} />
-          </div>
+          <StaggerContainer>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <StaggerItem>
+                <StreakCard data={streakData} />
+              </StaggerItem>
+              <StaggerItem>
+                <ProgressCard
+                  xp={xp}
+                  level={level}
+                  standing={standing}
+                  percentToNext={percentToNext}
+                  consistencyScore={consistencyScore}
+                  completedMilestones={completedMilestonesCount}
+                  totalMilestones={totalMilestonesCount}
+                />
+              </StaggerItem>
+              <StaggerItem>
+                <DailyCheckin goals={checkinGoals} />
+              </StaggerItem>
+            </div>
+          </StaggerContainer>
 
           {/* Grid Level 2: Active Goals Grid */}
           <div className="space-y-3.5">
@@ -370,5 +381,6 @@ export default async function DashboardPage() {
         </div>
       </div>
     </div>
+    </PageWrapper>
   )
 }
