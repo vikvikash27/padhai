@@ -46,7 +46,7 @@ const FADE_UP = {
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.1, duration: 0.5, ease: "easeOut" },
+    transition: { delay: i * 0.1, duration: 0.5, ease: "easeOut" as const },
   }),
 };
 
@@ -130,7 +130,7 @@ export function HeroSection() {
           className="flex flex-col sm:flex-row items-center justify-center gap-3"
         >
           <Link
-            href="/login"
+            href="/select-role"
             className="group flex items-center gap-2 px-6 py-3.5 bg-orange-500 hover:bg-orange-400 text-white text-sm font-bold rounded-xl transition-all hover:shadow-[0_0_24px_rgba(249,115,22,0.4)] active:scale-[0.98]"
           >
             Start your streak — it's free

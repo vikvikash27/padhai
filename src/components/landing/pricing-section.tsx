@@ -11,7 +11,7 @@ const PLANS = [
     period: "forever",
     description: "For learners just getting started.",
     cta: "Get started free",
-    ctaHref: "/login",
+    ctaHref: "/select-role",
     highlight: false,
     features: [
       "1 active goal",
@@ -35,7 +35,7 @@ const PLANS = [
     period: "per month",
     description: "For learners serious about finishing.",
     cta: "Start Pro free for 7 days",
-    ctaHref: "/login?plan=pro",
+    ctaHref: "/select-role?plan=pro",
     highlight: true,
     badge: "Most popular",
     features: [

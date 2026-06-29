@@ -1,18 +1,47 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { LayoutDashboard, Target, Calendar, Award, Settings, LogOut, Flame, Sparkles } from 'lucide-react'
 import { signOut } from '@/app/auth/actions'
+import { createClient } from '@/utils/supabase/client'
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/dashboard/goals/new', label: 'New Target', icon: Target },
+  { href: '/dashboard/profile', label: 'Profile Settings', icon: Settings },
 ]
 
 export function Sidebar() {
   const pathname = usePathname()
+  const [streakCount, setStreakCount] = useState<number | null>(null)
+
+  useEffect(() => {
+    const supabase = createClient()
+    async function fetchStreak() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+        
+        const { data } = await supabase
+          .from('streaks')
+          .select('current_streak')
+          .eq('user_id', user.id)
+          .maybeSingle()
+          
+        if (data) {
+          setStreakCount(data.current_streak)
+        } else {
+          setStreakCount(0)
+        }
+      } catch (err) {
+        console.error('Sidebar streak fetch error:', err)
+        setStreakCount(0)
+      }
+    }
+    fetchStreak()
+  }, [])
 
   return (
     <aside className="w-64 border-r border-zinc-800/80 bg-zinc-950/60 backdrop-blur-xl flex flex-col justify-between p-6 h-screen sticky top-0 shrink-0">
@@ -68,7 +97,9 @@ export function Sidebar() {
             <Flame className="w-4 h-4 text-orange-400 animate-pulse" />
             <div className="text-xs font-semibold text-zinc-300">Daily Streak</div>
           </div>
-          <div className="text-xs font-bold text-orange-400">12 Days</div>
+          <div className="text-xs font-bold text-orange-400">
+            {streakCount !== null ? `${streakCount} Day${streakCount === 1 ? '' : 's'}` : '...'}
+          </div>
         </div>
 
         <form action={signOut}>
@@ -84,3 +115,4 @@ export function Sidebar() {
     </aside>
   )
 }
+

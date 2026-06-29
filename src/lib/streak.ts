@@ -29,11 +29,11 @@ export type ISODate = string;
 
 /**
  * A single study session as stored in the DB (only the date matters here).
- * Pass `studied_at` as a UTC ISO string; the helpers strip the time part.
+ * Pass `session_date` as a UTC ISO string; the helpers strip the time part.
  */
 export interface StudySession {
   /** UTC ISO-8601 timestamp or date string, e.g. "2026-05-24T18:30:00Z" */
-  studied_at: string;
+  session_date: string;
 }
 
 /**
@@ -216,7 +216,7 @@ export function calculateCurrentStreak(
   // Collect unique study dates at or before today, ascending
   const studyDates = uniqueSortedDates(
     sessions
-      .map((s) => toUTCDate(s.studied_at))
+      .map((s) => toUTCDate(s.session_date))
       .filter((d) => !isAfter(d, todayDate))
   );
 
@@ -289,7 +289,7 @@ export function calculateLongestStreak(
 
   // Merge study dates + freeze dates into one unified sorted list
   const studyDates = sessions
-    .map((s) => toUTCDate(s.studied_at))
+    .map((s) => toUTCDate(s.session_date))
     .filter((d) => !isAfter(d, todayDate));
 
   const freezeDates = [...freezeSet]

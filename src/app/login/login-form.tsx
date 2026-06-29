@@ -67,93 +67,145 @@ export function LoginForm({ initialMessage, initialError }: LoginFormProps) {
   }
 
   return (
-    <div className="w-full max-w-md p-8 bg-zinc-900/60 backdrop-blur-xl border border-zinc-800 rounded-2xl shadow-2xl relative overflow-hidden">
-      {/* Glowing accent border */}
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-cyan-500 via-purple-500 to-blue-500 opacity-80" />
-      
-      <div className="flex flex-col items-center mb-8">
-        <div className="text-sm font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-2">
-          PadhAI
-        </div>
-        <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
-          Mission Control
-        </h1>
-        <p className="text-zinc-400 text-xs mt-1 text-center">
-          A quiet workspace for focus and personal growth
-        </p>
+  <div className="w-full max-w-md p-8 bg-zinc-900/60 backdrop-blur-xl border border-zinc-800 rounded-2xl shadow-2xl relative overflow-hidden">
+    {/* Glowing accent border */}
+    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-cyan-500 via-purple-500 to-blue-500 opacity-80" />
+    
+    <div className="flex flex-col items-center mb-8">
+      <div className="text-sm font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-2">
+        PadhAI
       </div>
+      <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
+        Mission Control
+      </h1>
+      <p className="text-zinc-400 text-xs mt-1 text-center">
+        A quiet workspace for focus and personal growth
+      </p>
+    </div>
 
-      {(initialError || errorMsg) && (
-        <div className="p-3 mb-4 text-xs text-red-400 bg-red-950/30 border border-red-900/50 rounded-lg text-center">
-          {errorMsg || initialError}
-        </div>
-      )}
+    {(initialError || errorMsg) && (
+      <div className="p-3 mb-4 text-xs text-red-400 bg-red-950/30 border border-red-900/50 rounded-lg text-center">
+        {errorMsg || initialError}
+      </div>
+    )}
 
-      {(initialMessage || successMsg) && (
-        <div className="p-3 mb-4 text-xs text-cyan-400 bg-cyan-950/30 border border-cyan-900/50 rounded-lg text-center">
-          {successMsg || initialMessage}
-        </div>
-      )}
+    {(initialMessage || successMsg) && (
+      <div className="p-3 mb-4 text-xs text-cyan-400 bg-cyan-950/30 border border-cyan-900/50 rounded-lg text-center">
+        {successMsg || initialMessage}
+      </div>
+    )}
 
-      <form onSubmit={handleFormSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="email" className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5">
-            Email address
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            required
-            placeholder="name@example.com"
-            disabled={loading !== null}
-            className="w-full px-4 py-2.5 bg-zinc-950 border border-zinc-800 rounded-lg text-zinc-100 text-sm placeholder-zinc-600 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-colors disabled:opacity-50"
-          />
-        </div>
 
-        <div>
-          <label htmlFor="password" className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5">
-            Password
-          </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            required
-            placeholder="••••••••"
-            disabled={loading !== null}
-            className="w-full px-4 py-2.5 bg-zinc-950 border border-zinc-800 rounded-lg text-zinc-100 text-sm placeholder-zinc-600 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-colors disabled:opacity-50"
-          />
-        </div>
+  <form onSubmit={handleFormSubmit} className="space-y-4">
+    {submitType === 'signup' && (
+      <div>
+        <label htmlFor="name" className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5">
+          Full Name
+        </label>
+        <input
+          id="name"
+          name="name"
+          type="text"
+          required
+          placeholder="John Doe"
+          disabled={loading !== null}
+          className="w-full px-4 py-2.5 bg-zinc-950 border border-zinc-800 rounded-lg text-zinc-100 text-sm placeholder-zinc-600 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-colors disabled:opacity-50"
+        />
+      </div>
+    )}
 
-        <div className="flex gap-3 pt-2">
+    <div>
+      <label htmlFor="email" className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5">
+        Email address
+      </label>
+      <input
+        id="email"
+        name="email"
+        type="email"
+        required
+        placeholder="name@example.com"
+        disabled={loading !== null}
+        className="w-full px-4 py-2.5 bg-zinc-950 border border-zinc-800 rounded-lg text-zinc-100 text-sm placeholder-zinc-600 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-colors disabled:opacity-50"
+      />
+    </div>
+
+    <div className="pb-0.5">
+      <label htmlFor="password" className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5">
+        Password
+      </label>
+      <div className="relative">
+        <input
+          id="password"
+          name="password"
+          type={submitType === 'signup' ? 'password' : 'text'}
+          required
+          placeholder="••••••••"
+          disabled={loading !== null}
+          className="w-full px-4 py-2.5 bg-zinc-950 border border-zinc-800 rounded-lg text-zinc-100 text-sm placeholder-zinc-600 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-colors disabled:opacity-50"
+        />
+        {submitType === 'signup' && (
           <button
-            type="submit"
-            onClick={() => setSubmitType('login')}
-            disabled={loading !== null}
-            className="flex-1 px-4 py-2.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-900 font-medium rounded-lg text-sm transition-all focus:outline-none focus:ring-2 focus:ring-zinc-400 disabled:opacity-50 relative flex items-center justify-center cursor-pointer"
+            type="button"
+            onClick={() => {
+              const input = document.getElementById('password') as HTMLInputElement
+              input.type = input.type === 'password' ? 'text' : 'password'
+            }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-300"
           >
-            {loading === 'login' ? (
-              <span className="w-5 h-5 border-2 border-zinc-900 border-t-transparent rounded-full animate-spin" />
-            ) : (
-              'Sign In'
-            )}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
           </button>
-          
-          <button
-            type="submit"
-            onClick={() => setSubmitType('signup')}
-            disabled={loading !== null}
-            className="flex-1 px-4 py-2.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-100 font-medium rounded-lg text-sm transition-all focus:outline-none focus:ring-2 focus:ring-zinc-800 disabled:opacity-50 relative flex items-center justify-center cursor-pointer"
-          >
-            {loading === 'signup' ? (
-              <span className="w-5 h-5 border-2 border-zinc-100 border-t-transparent rounded-full animate-spin" />
-            ) : (
-              'Register'
-            )}
-          </button>
-        </div>
-      </form>
+        )}
+      </div>
+    </div>
+
+    {submitType === 'signup' && (
+      <div>
+        <label htmlFor="confirmPassword" className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5">
+          Confirm Password
+        </label>
+        <input
+          id="confirmPassword"
+          name="confirmPassword"
+          type="password"
+          required
+          placeholder="••••••••"
+          disabled={loading !== null}
+          className="w-full px-4 py-2.5 bg-zinc-950 border border-zinc-800 rounded-lg text-zinc-100 text-sm placeholder-zinc-600 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-colors disabled:opacity-50"
+        />
+      </div>
+    )}
+
+    <div className="flex gap-3 pt-2">
+      <button
+        type="submit"
+        onClick={() => setSubmitType('login')}
+        disabled={loading !== null}
+        className="flex-1 px-4 py-2.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-900 font-medium rounded-lg text-sm transition-all focus:outline-none focus:ring-2 focus:ring-zinc-400 disabled:opacity-50 relative flex items-center justify-center cursor-pointer"
+      >
+        {loading === 'login' ? (
+          <span className="w-5 h-5 border-2 border-zinc-900 border-t-transparent rounded-full animate-spin" />
+        ) : (
+          'Sign In'
+        )}
+      </button>
+      
+      <button
+        type="submit"
+        onClick={() => setSubmitType('signup')}
+        disabled={loading !== null}
+        className="flex-1 px-4 py-2.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-100 font-medium rounded-lg text-sm transition-all focus:outline-none focus:ring-2 focus:ring-zinc-800 disabled:opacity-50 relative flex items-center justify-center cursor-pointer"
+      >
+        {loading === 'signup' ? (
+          <span className="w-5 h-5 border-2 border-zinc-100 border-t-transparent rounded-full animate-spin" />
+        ) : (
+          'Register'
+        )}
+      </button>
+    </div>
+  </form>
 
       <div className="relative my-6 flex items-center justify-center">
         <div className="absolute inset-x-0 h-px bg-zinc-800" />

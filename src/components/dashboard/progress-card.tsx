@@ -1,9 +1,27 @@
 'use client'
 
 import React from 'react'
-import { Sparkles, Trophy, BrainCircuit } from 'lucide-react'
+import { BrainCircuit } from 'lucide-react'
 
-export function ProgressCard() {
+export interface ProgressCardProps {
+  xp: number
+  level: number
+  standing: string
+  percentToNext: number
+  consistencyScore: number
+  completedMilestones: number
+  totalMilestones: number
+}
+
+export function ProgressCard({
+  xp,
+  level,
+  standing,
+  percentToNext,
+  consistencyScore,
+  completedMilestones,
+  totalMilestones
+}: ProgressCardProps) {
   return (
     <div className="bg-zinc-900/60 backdrop-blur-xl border border-zinc-800/80 rounded-2xl p-6 relative overflow-hidden shadow-xl">
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-cyan-500/30 to-blue-500/30 opacity-70" />
@@ -14,7 +32,7 @@ export function ProgressCard() {
             XP & Standing
           </div>
           <h2 className="text-3xl font-extrabold text-zinc-100 mt-1">
-            2,450 XP
+            {xp.toLocaleString()} XP
           </h2>
         </div>
         <div className="p-3 bg-cyan-950/20 border border-cyan-900/30 rounded-xl text-cyan-400">
@@ -26,11 +44,14 @@ export function ProgressCard() {
         {/* Progress bar */}
         <div className="space-y-2">
           <div className="flex justify-between text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-            <span>Level 8 — Scholar</span>
-            <span className="text-zinc-200">75% to Level 9</span>
+            <span>Level {level} — {standing}</span>
+            <span className="text-zinc-200">{percentToNext}% to Level {level + 1}</span>
           </div>
           <div className="h-2 w-full bg-zinc-950 rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full" style={{ width: '75%' }} />
+            <div
+              className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all duration-500"
+              style={{ width: `${percentToNext}%` }}
+            />
           </div>
         </div>
 
@@ -41,7 +62,7 @@ export function ProgressCard() {
               Consistency Score
             </div>
             <div className="text-sm font-bold text-zinc-200 mt-0.5">
-              94%
+              {consistencyScore}%
             </div>
           </div>
           <div>
@@ -49,7 +70,7 @@ export function ProgressCard() {
               Milestones Met
             </div>
             <div className="text-sm font-bold text-zinc-200 mt-0.5">
-              18/24
+              {completedMilestones}/{totalMilestones}
             </div>
           </div>
         </div>
@@ -57,3 +78,4 @@ export function ProgressCard() {
     </div>
   )
 }
+

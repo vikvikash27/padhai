@@ -151,12 +151,12 @@ function buildRecentDays(
 // ---------------------------------------------------------------------------
 
 export function StreakCard({ data }: StreakCardProps = {}) {
-  // Resolve values — real data takes priority, MOCK is the fallback
-  const currentStreak  = data?.currentStreak  ?? 18;
-  const longestStreak  = data?.longestStreak  ?? 32;
-  const freezesRemaining = data?.freezesRemaining ?? 2;
+  // Resolve values — real data takes priority, neutral zeros when absent
+  const currentStreak  = data?.currentStreak  ?? 0;
+  const longestStreak  = data?.longestStreak  ?? 0;
+  const freezesRemaining = data?.freezesRemaining ?? 0;
   const freezesTotal   = data?.freezesTotal   ?? 3;
-  const studiedToday   = data?.studiedToday   ?? true;
+  const studiedToday   = data?.studiedToday   ?? false;
   const isComebackStreak = data?.isComebackStreak ?? false;
 
   const recentDays: DayEntry[] = data

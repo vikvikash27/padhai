@@ -24,8 +24,9 @@ import { renderWeeklyReportEmail } from "@/lib/weekly-email-template";
 // ---------------------------------------------------------------------------
 
 function isAuthorized(req: NextRequest): boolean {
+  if (process.env.NODE_ENV === "development") return true;
   const secret = process.env.CRON_SECRET;
-  if (!secret) return process.env.NODE_ENV === "development";
+  if (!secret) return false;
   return req.headers.get("authorization") === `Bearer ${secret}`;
 }
 
@@ -46,7 +47,7 @@ function getServiceClient() {
 // Route handler
 // ---------------------------------------------------------------------------
 
-export async function GET(req: NextRequest) {
+async function handleWeeklyReport(req: NextRequest) {
   if (!isAuthorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -126,6 +127,10 @@ export async function GET(req: NextRequest) {
   );
 }
 
-export async function POST() {
-  return NextResponse.json({ error: "Method not allowed" }, { status: 405 });
+export async function GET(req: NextRequest) {
+  return handleWeeklyReport(req);
+}
+
+export async function POST(req: NextRequest) {
+  return handleWeeklyReport(req);
 }

@@ -4,7 +4,7 @@
  * tables.  No business logic lives here — only typed reads and writes.
  *
  * Tables assumed (from the schema in PROMPTS.md / Step 2):
- *   study_sessions  – columns: id, user_id, studied_at, hours, notes
+ *   study_sessions  – columns: id, user_id, session_date, hours, notes
  *   streaks         – columns: id, user_id, current_streak, longest_streak,
  *                              streak_start_date, last_study_date, updated_at
  *   freeze_days     – columns: id, user_id, used_on
@@ -47,9 +47,9 @@ export async function fetchStudySessions(
 ): Promise<StudySession[]> {
   const { data, error } = await db
     .from("study_sessions")
-    .select("studied_at")
+    .select("session_date")
     .eq("user_id", userId)
-    .order("studied_at", { ascending: true });
+    .order("session_date", { ascending: true });
 
   if (error) throw new Error(`fetchStudySessions: ${error.message}`);
   return (data ?? []) as StudySession[];

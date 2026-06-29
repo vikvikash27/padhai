@@ -173,10 +173,10 @@ export async function syncStreakFromHistory(now?: Date): Promise<void> {
 
   // Determine last_study_date from session history
   const sortedSessions = [...sessions].sort((a, b) =>
-    a.studied_at < b.studied_at ? 1 : -1
+    a.session_date < b.session_date ? 1 : -1
   );
   const lastStudyDate = sortedSessions[0]
-    ? toISODate(new Date(sortedSessions[0].studied_at))
+    ? toISODate(new Date(sortedSessions[0].session_date))
     : null;
 
   const payload: UpsertStreakPayload = {

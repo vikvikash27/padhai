@@ -49,7 +49,7 @@ export function CTASection() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
-              href="/login"
+              href="/select-role"
               className="group flex items-center gap-2 px-7 py-3.5 bg-orange-500 hover:bg-orange-400 text-white text-sm font-bold rounded-xl transition-all hover:shadow-[0_0_28px_rgba(249,115,22,0.45)] active:scale-[0.98]"
             >
               Start for free — no card needed

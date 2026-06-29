@@ -63,7 +63,7 @@ export function LandingNav() {
             Sign in
           </Link>
           <Link
-            href="/login"
+            href="/select-role"
             className="px-4 py-2 bg-zinc-100 hover:bg-white text-zinc-900 text-sm font-bold rounded-xl transition-all hover:shadow-lg hover:shadow-zinc-100/10"
           >
             Start free →
@@ -108,7 +108,7 @@ export function LandingNav() {
                 Sign in
               </Link>
               <Link
-                href="/login"
+                href="/select-role"
                 className="px-4 py-2.5 bg-zinc-100 text-zinc-900 text-sm font-bold rounded-xl text-center"
               >
                 Start free →

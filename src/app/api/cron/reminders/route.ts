@@ -39,12 +39,11 @@ import { runReminderCron } from "@/lib/reminder-service";
 // ---------------------------------------------------------------------------
 
 function isAuthorized(req: NextRequest): boolean {
+  if (process.env.NODE_ENV === "development") return true;
   const secret = process.env.CRON_SECRET;
 
-  // If no secret configured, allow only in development
-  if (!secret) {
-    return process.env.NODE_ENV === "development";
-  }
+  // If no secret configured in production, fail closed
+  if (!secret) return false;
 
   const authHeader = req.headers.get("authorization");
   return authHeader === `Bearer ${secret}`;
@@ -73,7 +72,7 @@ function getServiceClient() {
 // Route handler
 // ---------------------------------------------------------------------------
 
-export async function GET(req: NextRequest) {
+async function handleReminders(req: NextRequest) {
   if (!isAuthorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -92,7 +91,10 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// Vercel cron jobs use GET; disallow all other methods
-export async function POST() {
-  return NextResponse.json({ error: "Method not allowed" }, { status: 405 });
+export async function GET(req: NextRequest) {
+  return handleReminders(req);
+}
+
+export async function POST(req: NextRequest) {
+  return handleReminders(req);
 }

@@ -1,0 +1,30 @@
+castai_v1_12ef65fc507389af019664a7d87b21f95e1efef05a981c275bf07c7c9b83fe6f_fce065e4
+
+
+
+curl https://llm.kimchi.dev/openai/v1/models `
+  -H "Authorization: Bearer castai_v1_12ef65fc507389af019664a7d87b21f95e1efef05a981c275bf07c7c9b83fe6f_fce065e4"
+
+
+ //////////////
+
+ $headers = @{
+    Authorization = "Bearer castai_v1_12ef65fc507389af019664a7d87b21f95e1efef05a981c275bf07c7c9b83fe6f_fce065e4"
+    "Content-Type" = "application/json"
+}
+
+$body = @{
+    model = "kimi-k2.6"
+    messages = @(
+        @{
+            role = "user"
+            content = "Say hello"
+        }
+    )
+} | ConvertTo-Json -Depth 5
+
+Invoke-RestMethod `
+    -Uri "https://llm.kimchi.dev/openai/v1/chat/completions" `
+    -Method Post `
+    -Headers $headers `
+    -Body $body

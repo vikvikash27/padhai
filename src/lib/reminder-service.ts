@@ -34,6 +34,43 @@ import type {
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 // ---------------------------------------------------------------------------
+// Push notification helper
+// ---------------------------------------------------------------------------
+
+async function sendPushNotification(
+  db: SupabaseClient,
+  userId: string,
+  title: string,
+  body: string
+): Promise<boolean> {
+  try {
+    const { data: tokens } = await db
+      .from("push_tokens")
+      .select("expo_push_token")
+      .eq("user_id", userId)
+      .eq("is_active", true);
+
+    if (!tokens?.length) return false;
+
+    // Call the push notification API
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://padhai.app";
+    const res = await fetch(
+      `${appUrl}/api/push-notifications?secret=${process.env.CRON_SECRET}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, title, body }),
+      }
+    );
+
+    return res.ok;
+  } catch (e) {
+    console.error("[push] Failed to send push notification:", e);
+    return false;
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Resend client (lazy singleton)
 // ---------------------------------------------------------------------------
 
@@ -144,6 +181,13 @@ export async function processSingleUserReminder(
     resend_id: resendId,
     delivered,
   });
+
+  // -- Send push notification alongside email --
+  const pushTitle = "PadhAI Reminder";
+  const pushBody = inactiveDays > 0
+    ? `You haven't studied in ${inactiveDays} day${inactiveDays > 1 ? "s" : ""}. Your streak is at risk!`
+    : "Time to check in and keep your streak going!";
+  await sendPushNotification(db, profile.userId, pushTitle, pushBody);
 
   return {
     userId: profile.userId,

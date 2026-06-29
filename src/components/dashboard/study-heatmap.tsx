@@ -1,27 +1,63 @@
 'use client'
 
 import React from 'react'
+import { format, subDays, addDays } from 'date-fns'
 
-export function StudyHeatmap() {
-  // Generate mock grid for a few weeks of activity
+interface Session {
+  session_date: string
+  hours: number
+}
+
+interface StudyHeatmapProps {
+  sessions: Session[]
+}
+
+export function StudyHeatmap({ sessions }: StudyHeatmapProps) {
   const weeks = 24
   const daysPerWeek = 7
   
-  // Custom mock weights for activity representation
-  const getActivityColor = (val: number) => {
-    if (val === 0) return 'bg-zinc-950/80 border border-zinc-900/50 hover:bg-zinc-900/60'
-    if (val === 1) return 'bg-cyan-950/40 border border-cyan-900/20 hover:bg-cyan-950/60'
-    if (val === 2) return 'bg-cyan-800/40 border border-cyan-700/20 hover:bg-cyan-800/60'
-    if (val === 3) return 'bg-cyan-600/60 border border-cyan-500/20 hover:bg-cyan-600/80'
-    return 'bg-cyan-400 hover:bg-cyan-300'
+  // Custom weights for activity representation
+  const getActivityColor = (hours: number, isFuture: boolean) => {
+    if (isFuture) return 'bg-zinc-950/20 border border-zinc-900/20 opacity-30 cursor-default'
+    if (hours === 0) return 'bg-zinc-955 border border-zinc-900 hover:bg-zinc-900/60'
+    if (hours <= 1) return 'bg-cyan-950/50 border border-cyan-900/30 hover:bg-cyan-950/80'
+    if (hours <= 2) return 'bg-cyan-800/40 border border-cyan-700/30 hover:bg-cyan-800/70'
+    if (hours <= 4) return 'bg-cyan-600/60 border border-cyan-500/30 hover:bg-cyan-600/90'
+    return 'bg-cyan-400 border border-cyan-300 shadow-[0_0_8px_rgba(34,211,238,0.5)] hover:bg-cyan-300'
   }
 
-  // Create grid matrix
+  const today = new Date()
+  const currentSunday = subDays(today, today.getDay())
+  const startSunday = subDays(currentSunday, (weeks - 1) * 7)
+
+  // Map study sessions by date for fast lookup
+  const sessionsMap = React.useMemo(() => {
+    const map: Record<string, number> = {}
+    if (!sessions) return map
+    sessions.forEach(s => {
+      const dateKey = s.session_date.slice(0, 10)
+      map[dateKey] = (map[dateKey] || 0) + s.hours
+    })
+    return map
+  }, [sessions])
+
+  // Create grid matrix (7 rows for days of week, 24 columns for weeks)
   const grid = Array.from({ length: daysPerWeek }, (_, dayIdx) => {
     return Array.from({ length: weeks }, (_, weekIdx) => {
-      // Seed random weights for visual demo
-      const seed = (dayIdx * 3 + weekIdx * 7) % 5
-      return seed
+      const cellDate = addDays(startSunday, weekIdx * 7 + dayIdx)
+      const dateKey = format(cellDate, 'yyyy-MM-dd')
+      const isFuture = cellDate > today
+      const hours = sessionsMap[dateKey] || 0
+      return {
+        dateKey,
+        hours,
+        isFuture,
+        formattedDate: cellDate.toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric'
+        })
+      }
     })
   })
 
@@ -46,7 +82,7 @@ export function StudyHeatmap() {
           <div className="w-2.5 h-2.5 rounded bg-cyan-950/40 border border-cyan-900/20" />
           <div className="w-2.5 h-2.5 rounded bg-cyan-800/40 border border-cyan-700/20" />
           <div className="w-2.5 h-2.5 rounded bg-cyan-600/60 border border-cyan-500/20" />
-          <div className="w-2.5 h-2.5 rounded bg-cyan-400" />
+          <div className="w-2.5 h-2.5 rounded bg-cyan-400 shadow-[0_0_6px_rgba(34,211,238,0.5)]" />
           <span>More</span>
         </div>
       </div>
@@ -65,8 +101,8 @@ export function StudyHeatmap() {
               {row.map((cell, cellIdx) => (
                 <div
                   key={cellIdx}
-                  className={`w-3.5 h-3.5 rounded transition-all duration-200 cursor-pointer ${getActivityColor(cell)}`}
-                  title={`Activity weight: ${cell}`}
+                  className={`w-3.5 h-3.5 rounded transition-all duration-200 cursor-pointer ${getActivityColor(cell.hours, cell.isFuture)}`}
+                  title={cell.isFuture ? 'Future' : `${cell.formattedDate}: ${cell.hours.toFixed(1)} hours`}
                 />
               ))}
             </div>
@@ -76,3 +112,4 @@ export function StudyHeatmap() {
     </div>
   )
 }
+
