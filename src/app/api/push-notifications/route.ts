@@ -1,6 +1,8 @@
 // PadhAI Push Notification API - Add to web app
 // src/app/api/push-notifications/route.ts
 
+export const runtime = "nodejs";
+
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/utils/supabase/server"
 import { Expo } from "expo-server-sdk"
