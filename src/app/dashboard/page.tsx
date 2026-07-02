@@ -166,7 +166,7 @@ export default async function DashboardPage() {
       risk: getInactivityRisk(inactiveDays),
       lastStudyDate: summary.lastStudyDate,
       lastReminderTier: lastReminder?.tier ?? null,
-      lastReminderSentAt: lastReminder?.sent_at ?? null,
+      lastReminderSentAt: lastReminder?.created_at ?? null,
       frozenToday: summary.frozenToday,
     }
 
