@@ -302,7 +302,8 @@ export async function updateMilestoneTitle(milestoneId: string, title: string) {
     return { error: 'Cannot edit a completed milestone' }
   }
 
-  const goal = milestone.goals as { user_id: string } | null
+  const goalData = Array.isArray(milestone.goals) ? milestone.goals[0] : milestone.goals
+  const goal = goalData as { user_id: string } | null
   if (!goal || goal.user_id !== user.id) {
     return { error: 'Access denied' }
   }
