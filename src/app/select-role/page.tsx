@@ -2,12 +2,12 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import { GraduationCap, Briefcase, Sparkles, Flame } from 'lucide-react'
+import { GraduationCap, Briefcase, Sparkles, Flame, FlaskConical } from 'lucide-react'
 
 export default function SelectRolePage() {
   const router = useRouter()
 
-  const handleSelectRole = (role: 'Student' | 'Professional') => {
+  const handleSelectRole = (role: 'Student' | 'Professional' | 'Research Scholar') => {
     // Set cookie
     document.cookie = `padhai_selected_role=${role}; path=/; max-age=3600; SameSite=Lax`
     // Redirect to login/register
@@ -68,6 +68,19 @@ export default function SelectRolePage() {
               <div className="text-center">
                 <span className="block text-base font-bold text-zinc-100">Professional</span>
                 <span className="block text-xs text-zinc-500 mt-1">Job, Career, or Industry</span>
+              </div>
+            </button>
+
+            <button
+              onClick={() => handleSelectRole('Research Scholar')}
+              className="flex flex-col items-center gap-4 p-6 rounded-xl border border-zinc-850 bg-zinc-950/20 hover:bg-zinc-950/40 hover:border-purple-500/50 hover:text-purple-300 transition-all cursor-pointer group"
+            >
+              <div className="p-4 bg-zinc-900 border border-zinc-800 rounded-xl group-hover:text-purple-400 transition-colors">
+                <FlaskConical className="w-8 h-8" />
+              </div>
+              <div className="text-center">
+                <span className="block text-base font-bold text-zinc-100">Research Scholar</span>
+                <span className="block text-xs text-zinc-500 mt-1">PhD, Masters, or Academic Research</span>
               </div>
             </button>
           </div>

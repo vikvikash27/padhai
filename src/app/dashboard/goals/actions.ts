@@ -238,3 +238,84 @@ export async function toggleMilestone(milestoneId: string, isCompleted: boolean)
   return { success: true }
 }
 
+export async function addMilestone(goalId: string, title: string) {
+  if (!title || title.trim().length < 1 || title.trim().length > 100) {
+    return { error: 'Milestone title must be 1-100 characters' }
+  }
+
+  const supabase = await createClient()
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) {
+    return { error: 'Unauthorized' }
+  }
+
+  const { data: goal, error: goalError } = await supabase
+    .from('goals')
+    .select('id')
+    .eq('id', goalId)
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  if (goalError || !goal) {
+    return { error: 'Goal not found or access denied' }
+  }
+
+  const { error: insertError } = await supabase
+    .from('milestones')
+    .insert({
+      goal_id: goalId,
+      title: title.trim(),
+      is_completed: false,
+    })
+
+  if (insertError) {
+    return { error: insertError.message }
+  }
+
+  return { success: true }
+}
+
+export async function updateMilestoneTitle(milestoneId: string, title: string) {
+  if (!title || title.trim().length < 1 || title.trim().length > 100) {
+    return { error: 'Milestone title must be 1-100 characters' }
+  }
+
+  const supabase = await createClient()
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) {
+    return { error: 'Unauthorized' }
+  }
+
+  const { data: milestone, error: milestoneError } = await supabase
+    .from('milestones')
+    .select('id, is_completed, goals!inner(user_id)')
+    .eq('id', milestoneId)
+    .single()
+
+  if (milestoneError || !milestone) {
+    return { error: 'Milestone not found or access denied' }
+  }
+
+  if (milestone.is_completed) {
+    return { error: 'Cannot edit a completed milestone' }
+  }
+
+  const goal = milestone.goals as { user_id: string } | null
+  if (!goal || goal.user_id !== user.id) {
+    return { error: 'Access denied' }
+  }
+
+  const { error: updateError } = await supabase
+    .from('milestones')
+    .update({ title: title.trim() })
+    .eq('id', milestoneId)
+
+  if (updateError) {
+    return { error: updateError.message }
+  }
+
+  return { success: true }
+}
+

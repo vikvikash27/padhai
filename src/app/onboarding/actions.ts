@@ -10,7 +10,7 @@ const OnboardingSchema = z.object({
   milestones: z.array(z.string().min(1, 'Milestone cannot be empty')).min(2, 'Must add at least two milestones'),
   reminderStyle: z.enum(['gentle', 'accountability', 'comeback']),
   motivationStyle: z.enum(['calm', 'motivational', 'competitive', 'stoic']),
-  role: z.enum(['Student', 'Professional']),
+  role: z.enum(['Student', 'Professional', 'Research Scholar']),
   profession: z.string().optional().nullable(),
   academicField: z.string().optional().nullable(),
 })
@@ -72,7 +72,8 @@ export async function completeOnboarding(input: OnboardingInput) {
       email: user.email,
       role: parsed.data.role,
       profession: parsed.data.role === 'Professional' ? parsed.data.profession : null,
-      academic_field: parsed.data.role === 'Student' ? parsed.data.academicField : null,
+      academic_field: (parsed.data.role === 'Student' || parsed.data.role === 'Research Scholar')
+        ? parsed.data.academicField : null,
       onboarding_completed: true,
     }, { onConflict: 'id' })
 

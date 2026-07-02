@@ -52,6 +52,10 @@ export function Sidebar() {
       }
     }
     fetchStreak()
+
+    const handleFocus = () => fetchStreak()
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
   }, [])
 
   return (
@@ -64,8 +68,8 @@ export function Sidebar() {
         />
       )}
       <aside
-        className={`w-64 border-r border-zinc-800/80 bg-zinc-950/60 backdrop-blur-xl flex flex-col justify-between p-6 h-screen shrink-0 transition-all duration-300
-          ${isOpen ? 'fixed z-50 top-0 left-0 h-full flex md:sticky md:z-30 md:top-0 md:h-screen' : 'hidden md:flex md:sticky md:top-0 md:h-screen'}
+        className={`w-64 border-r border-zinc-800/80 bg-zinc-950/60 backdrop-blur-xl flex flex-col justify-start md:justify-between p-6 h-screen md:h-screen overflow-y-auto md:overflow-visible shrink-0 transition-all duration-300
+          ${isOpen ? 'fixed z-50 top-0 left-0 h-full flex md:sticky md:z-30 md:top-0 md:h-screen md:overflow-visible' : 'hidden md:flex md:sticky md:top-0 md:h-screen'}
         `}
       >
       {/* Close button — mobile only */}
@@ -120,11 +124,36 @@ export function Sidebar() {
               </Link>
             )
           })}
+
+          {/* Mobile-only Sign Out - below Profile Settings */}
+          <form action={signOut} className="md:hidden mt-2 pt-2 border-t border-zinc-800">
+            <button
+              type="submit"
+              onClick={() => setIsOpen(false)}
+              className="w-full flex items-center gap-3 px-4 py-3 text-zinc-500 hover:text-red-400 hover:bg-red-950/10 rounded-xl text-sm font-medium transition-all cursor-pointer border border-transparent hover:border-red-950/20"
+            >
+              <LogOut className="w-4 h-4" />
+              Sign Out
+            </button>
+          </form>
+
+          {/* Mobile-only Daily Streak - below Sign Out */}
+          <div className="md:hidden mt-3 pt-2 border-t border-zinc-800">
+            <div className="p-3 bg-zinc-900/40 border border-zinc-850 rounded-xl flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Flame className="w-4 h-4 text-orange-400 animate-pulse" />
+                <div className="text-xs font-semibold text-zinc-300">Daily Streak</div>
+              </div>
+              <div className="text-xs font-bold text-orange-400">
+                {streakCount !== null ? `${streakCount} Day${streakCount === 1 ? '' : 's'}` : '...'}
+              </div>
+            </div>
+          </div>
         </nav>
       </div>
 
-      {/* Footer / Account section */}
-      <div className="space-y-4">
+      {/* Footer / Account section - hidden on mobile, shown on desktop */}
+      <div className="hidden md:block space-y-4 mt-auto md:mt-0">
         <div className="p-3 bg-zinc-900/40 border border-zinc-850 rounded-xl flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Flame className="w-4 h-4 text-orange-400 animate-pulse" />
@@ -135,7 +164,8 @@ export function Sidebar() {
           </div>
         </div>
 
-        <form action={signOut} className="flex md:flex">
+        {/* Desktop-only Sign Out - hidden on mobile */}
+        <form action={signOut} className="hidden md:flex">
           <button
             type="submit"
             className="w-full flex items-center gap-3 px-4 py-3 text-zinc-500 hover:text-red-400 hover:bg-red-950/10 rounded-xl text-sm font-medium transition-all cursor-pointer border border-transparent hover:border-red-950/20"

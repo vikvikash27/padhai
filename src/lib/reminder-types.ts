@@ -50,14 +50,14 @@ export interface ReminderRecord {
   id: string;
   user_id: string;
   tier: ReminderTier;
-  /** ISO timestamp when the email was dispatched. */
-  sent_at: string;
   /** YYYY-MM-DD the reminder was for. */
   reminder_date: string;
   /** Resend message ID, for delivery tracking. */
   resend_id: string | null;
   /** Whether delivery succeeded. */
   delivered: boolean;
+  /** Auto-populated timestamp from Supabase. */
+  created_at: string;
 }
 
 // ---------------------------------------------------------------------------

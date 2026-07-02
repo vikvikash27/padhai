@@ -89,12 +89,13 @@ function toUTCDate(iso: string): Date {
 }
 
 /**
- * Returns today as a UTC midnight Date using the *local* clock.
+ * Returns today as UTC midnight.
  * Passing an explicit `now` parameter lets callers inject a deterministic
  * instant for unit-testing.
  */
 function today(now?: Date): Date {
-  return startOfDay(now ?? new Date());
+  const d = now ?? new Date();
+  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
 }
 
 /**
