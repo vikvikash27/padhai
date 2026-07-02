@@ -3,6 +3,7 @@
 import React from 'react'
 import { Sparkles, Bell, Search, Plus, Menu } from 'lucide-react'
 import Link from 'next/link'
+import { CommandPalette } from '../command-palette'
 
 export function TopNavbar() {
   const handleHamburgerClick = () => {
@@ -19,15 +20,19 @@ export function TopNavbar() {
         >
           <Menu className="w-4 h-4" />
         </button>
-        <div className="hidden md:flex items-center gap-4 w-96">
-          <div className="relative w-full">
-            <Search className="w-4 h-4 text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Search dashboard, tasks, milestones..."
-              className="w-full bg-zinc-900/40 hover:bg-zinc-900/60 border border-zinc-800 rounded-xl pl-10 pr-4 py-2 text-xs placeholder-zinc-500 text-zinc-300 focus:outline-none focus:border-cyan-500/80 focus:ring-1 focus:ring-cyan-500/50 transition-colors"
-            />
-          </div>
+        <div className="hidden md:flex items-center gap-4 w-80">
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent('open-command-palette'))}
+            className="relative w-full flex items-center bg-zinc-900/40 hover:bg-zinc-900/60 border border-zinc-800 hover:border-zinc-700/80 rounded-xl pl-10 pr-3.5 py-2 text-left transition-all cursor-pointer group"
+          >
+            <Search className="w-4 h-4 text-zinc-500 group-hover:text-zinc-450 absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors" />
+            <span className="text-xs text-zinc-500 group-hover:text-zinc-400 transition-colors select-none">
+              Search workspace or goals...
+            </span>
+            <kbd className="absolute right-3.5 top-1/2 -translate-y-1/2 inline-flex h-4.5 select-none items-center gap-0.5 rounded border border-zinc-800 bg-zinc-950 px-1.5 font-mono text-[9px] font-medium text-zinc-505 leading-none group-hover:border-zinc-750 transition-colors">
+              ⌘K
+            </kbd>
+          </button>
         </div>
       </div>
 
@@ -51,6 +56,7 @@ export function TopNavbar() {
           <Bell className="w-4 h-4" />
         </button>
       </div>
+      <CommandPalette />
     </header>
   )
 }

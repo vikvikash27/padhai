@@ -3,8 +3,8 @@
  * @description Supabase data-access layer for the reminder engine.
  *
  * Table assumed:
- *   reminders – columns: id (uuid), user_id, tier, sent_at, reminder_date,
- *               resend_id, delivered, created_at
+ *   reminders – columns: id (uuid), user_id, tier, reminder_date,
+ *               resend_id, delivered, created_at (auto-populated by Supabase)
  *
  * Also reads from:
  *   auth.users  – email, raw_user_meta_data->full_name
@@ -149,6 +149,7 @@ export interface InsertReminderPayload {
 /**
  * Persists a reminder record after a send attempt.
  * Always writes regardless of delivery success, so failures are traceable.
+ * Uses Supabase's auto-populated `created_at` timestamp.
  */
 export async function insertReminderRecord(
   db: SupabaseClient,
@@ -156,10 +157,7 @@ export async function insertReminderRecord(
 ): Promise<ReminderRecord> {
   const { data, error } = await db
     .from("reminders")
-    .insert({
-      ...payload,
-      sent_at: new Date().toISOString(),
-    })
+    .insert(payload)
     .select()
     .single();
 
@@ -183,7 +181,7 @@ export async function fetchReminderHistory(
     .from("reminders")
     .select("*")
     .eq("user_id", userId)
-    .order("sent_at", { ascending: false })
+    .order("created_at", { ascending: false })
     .limit(limit);
 
   if (error) throw new Error(`fetchReminderHistory: ${error.message}`);
@@ -202,7 +200,7 @@ export async function fetchLastReminder(
     .from("reminders")
     .select("*")
     .eq("user_id", userId)
-    .order("sent_at", { ascending: false })
+    .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
 

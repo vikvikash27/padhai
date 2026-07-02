@@ -1,12 +1,14 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Plus, Trash, ArrowLeft, Target, Award, Sparkles, BookOpen, Clock, Calendar } from 'lucide-react'
+import { Plus, Trash, ArrowLeft, Target, Award, Sparkles, BookOpen, Clock, Calendar, GraduationCap, Briefcase, Binary, Cloud, Code2, Server } from 'lucide-react'
+import { createClient } from '@/utils/supabase/client'
 import { createGoal } from '@/app/dashboard/goals/actions'
+import { goalTemplates, getTemplateIcon } from '@/lib/goal-templates'
 
 const goalFormSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters'),
@@ -27,11 +29,36 @@ export default function NewGoalPage() {
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
+  const [userRole, setUserRole] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+
+      if (data?.role) {
+        setUserRole(data.role)
+      }
+    }
+    fetchUserRole()
+  }, [])
+
+  const visibleTemplates = goalTemplates.filter(t =>
+    t.role === 'Both' || t.role === userRole
+  )
 
   const {
     register,
     control,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<GoalFormValues>({
     resolver: zodResolver(goalFormSchema),
@@ -44,10 +71,30 @@ export default function NewGoalPage() {
     },
   })
 
-  const { fields, append, remove } = useFieldArray({
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null)
+
+  const { fields, append, remove, replace } = useFieldArray({
     control,
     name: 'milestones',
   })
+
+  const applyTemplate = (template: typeof goalTemplates[0]) => {
+    setValue('title', template.name)
+    setValue('description', template.description)
+    setValue('durationDays', template.durationDays)
+    setValue('dailyTargetHours', template.dailyTargetHours)
+    replace(template.milestones.map((m) => ({ title: m })))
+    setSelectedTemplate(template.id)
+  }
+
+  const resetToBlank = () => {
+    setValue('title', '')
+    setValue('description', '')
+    setValue('durationDays', 30)
+    setValue('dailyTargetHours', 2)
+    replace([{ title: '' }])
+    setSelectedTemplate(null)
+  }
 
   const onSubmit = async (data: GoalFormValues) => {
     setLoading(true)
@@ -121,6 +168,53 @@ export default function NewGoalPage() {
               {successMsg}
             </div>
           )}
+
+          {/* Template Gallery */}
+          <div className="space-y-3">
+            <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+              Start from a template
+            </h3>
+            <div className="flex gap-3 overflow-x-auto pb-2 flex-nowrap">
+              {/* Start Blank Card */}
+              <button
+                type="button"
+                onClick={resetToBlank}
+                className={`flex-shrink-0 w-36 p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                  selectedTemplate === null
+                    ? 'bg-zinc-800 border-zinc-600 text-zinc-100'
+                    : 'bg-zinc-950/40 border-zinc-800 text-zinc-400 hover:border-zinc-700'
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <Target className="w-4 h-4" />
+                </div>
+                <p className="text-xs font-semibold">Start blank</p>
+                <p className="text-[10px] text-zinc-500 mt-1">Custom goal</p>
+              </button>
+
+              {/* Template Cards */}
+              {visibleTemplates.map((template) => (
+                <button
+                  key={template.id}
+                  type="button"
+                  onClick={() => applyTemplate(template)}
+                  className={`flex-shrink-0 w-36 p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                    selectedTemplate === template.id
+                      ? 'bg-zinc-800 border-zinc-600 text-zinc-100'
+                      : 'bg-zinc-950/40 border-zinc-800 text-zinc-400 hover:border-zinc-700'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    {getTemplateIcon(template.icon)}
+                  </div>
+                  <p className="text-xs font-semibold truncate">{template.name}</p>
+                  <p className="text-[10px] text-zinc-500 mt-1">
+                    {template.durationDays} days • {template.dailyTargetHours}h/day
+                  </p>
+                </button>
+              ))}
+            </div>
+          </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Title & Description */}

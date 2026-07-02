@@ -92,13 +92,13 @@ export async function fetchCompletedMilestonesThisWeek(
   weekStart: string,
   weekEnd: string
 ): Promise<CompletedMilestone[]> {
-  // milestones table: id, title, completed_at, goal_id, user_id
+  // milestones table: id, title, completed_at, goal_id (no user_id)
   // goals table: id, title, user_id
   const { data, error } = await db
     .from("milestones")
-    .select("id, title, completed_at, goals(title)")
-    .eq("user_id", userId)
-    .not("completed_at", "is", null)
+    .select("id, title, completed_at, goal_id, goals!inner(title)")
+    .eq("goals.user_id", userId)
+    .eq("is_completed", true)
     .gte("completed_at", `${weekStart}T00:00:00Z`)
     .lte("completed_at", `${weekEnd}T23:59:59Z`);
 

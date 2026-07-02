@@ -39,6 +39,7 @@ const GOAL_TEMPLATES = [
     category: 'exams', 
     duration: 180, 
     dailyTarget: 6,
+    role: 'Student',
     milestones: ['Complete NCERT foundations', 'Finish syllabus for paper 1', 'Solve last 5 years papers', 'Mock test series']
   },
   { 
@@ -46,6 +47,7 @@ const GOAL_TEMPLATES = [
     category: 'tech', 
     duration: 90, 
     dailyTarget: 3,
+    role: 'Both',
     milestones: ['Master React & Next.js basics', 'Build three complete portfolio projects', 'Learn backend databases & API integration', 'Deploy full stack application']
   },
   { 
@@ -53,6 +55,7 @@ const GOAL_TEMPLATES = [
     category: 'tech', 
     duration: 60, 
     dailyTarget: 2,
+    role: 'Both',
     milestones: ['Understand array, list & tree complexities', 'Solve 50 LeetCode Medium challenges', 'Master dynamic programming', 'Mock technical interview prep']
   },
   { 
@@ -60,6 +63,7 @@ const GOAL_TEMPLATES = [
     category: 'tech', 
     duration: 120, 
     dailyTarget: 4,
+    role: 'Both',
     milestones: ['Complete linear algebra & stats review', 'Build standard regression/classification models', 'Train first neural network using PyTorch', 'Fine-tune large language model API']
   },
   { 
@@ -67,7 +71,80 @@ const GOAL_TEMPLATES = [
     category: 'business', 
     duration: 30, 
     dailyTarget: 2,
+    role: 'Professional',
     milestones: ['Study product design case studies', 'Complete mock case interview questions', 'Learn product analytics metrics', 'Build standard PRD mock document']
+  },
+  {
+    title: 'PhD Thesis Completion',
+    category: 'research',
+    duration: 365,
+    dailyTarget: 3,
+    role: 'Research Scholar',
+    milestones: [
+      'Complete literature review',
+      'Finalize methodology',
+      'Data collection & fieldwork',
+      'Analysis & results',
+      'Draft thesis chapters',
+      'Supervisor review & revisions',
+      'Final submission & defense prep'
+    ]
+  },
+  {
+    title: 'Research Paper Writing',
+    category: 'research',
+    duration: 45,
+    dailyTarget: 2,
+    role: 'Research Scholar',
+    milestones: [
+      'Define research question & outline',
+      'Literature review & citations',
+      'Write methodology & results',
+      'Draft discussion & conclusion',
+      'Peer review & final edits'
+    ]
+  },
+  {
+    title: 'Literature Review Sprint',
+    category: 'research',
+    duration: 30,
+    dailyTarget: 2,
+    role: 'Research Scholar',
+    milestones: [
+      'Identify key papers (50+ sources)',
+      'Read & annotate 25 papers',
+      'Read & annotate remaining papers',
+      'Synthesize findings & write review'
+    ]
+  },
+  {
+    title: 'Conference Paper Submission',
+    category: 'research',
+    duration: 60,
+    dailyTarget: 2.5,
+    role: 'Research Scholar',
+    milestones: [
+      'Select conference & study guidelines',
+      'Draft abstract & get feedback',
+      'Write full paper draft',
+      'Revise & format to submission style',
+      'Submit & prepare presentation'
+    ]
+  },
+  {
+    title: 'Masters Dissertation',
+    category: 'research',
+    duration: 180,
+    dailyTarget: 2.5,
+    role: 'Research Scholar',
+    milestones: [
+      'Topic selection & proposal approval',
+      'Literature review',
+      'Research design & ethics clearance',
+      'Data collection',
+      'Analysis & findings',
+      'Write & submit dissertation'
+    ]
   },
 ]
 
@@ -115,7 +192,7 @@ export function OnboardingFlow() {
   const [error, setError] = useState<string | null>(null)
 
   // Onboarding state values
-  const [role, setRole] = useState<'Student' | 'Professional'>('Student')
+  const [role, setRole] = useState<'Student' | 'Professional' | 'Research Scholar'>('Student')
   const [profession, setProfession] = useState('')
   const [academicField, setAcademicField] = useState('')
 
@@ -123,7 +200,7 @@ export function OnboardingFlow() {
     if (typeof window !== 'undefined') {
       const match = document.cookie.match(/(?:^|; )padhai_selected_role=([^;]*)/)
       const savedRole = match ? decodeURIComponent(match[1]) : null
-      if (savedRole === 'Student' || savedRole === 'Professional') {
+      if (savedRole === 'Student' || savedRole === 'Professional' || savedRole === 'Research Scholar') {
         setRole(savedRole)
       }
     }
@@ -147,6 +224,10 @@ export function OnboardingFlow() {
     if (currentStep === 2) {
       if (role === 'Student' && !academicField.trim()) {
         setError('Please enter your current academic field / course / class.')
+        return
+      }
+      if (role === 'Research Scholar' && !academicField.trim()) {
+        setError('Please enter your research field / department.')
         return
       }
       if (role === 'Professional' && !profession.trim()) {
@@ -231,7 +312,7 @@ export function OnboardingFlow() {
       motivationStyle: motivationStyle as any,
       role,
       profession: role === 'Professional' ? profession : null,
-      academicField: role === 'Student' ? academicField : null,
+      academicField: (role === 'Student' || role === 'Research Scholar') ? academicField : null,
     }
 
     try {
@@ -377,6 +458,22 @@ export function OnboardingFlow() {
                       <span className="block text-lg font-bold text-zinc-100">Professional</span>
                       <span className="block text-xs text-zinc-500 mt-1">Working, Freelance, or Industry Career</span>
                     </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRole('Research Scholar')
+                        setError(null)
+                      }}
+                      className={`p-5 rounded-xl border text-center transition-all ${
+                        role === 'Research Scholar'
+                          ? 'border-purple-500/80 bg-purple-500/5 text-purple-300 shadow-[0_0_15px_-3px_rgba(168,85,247,0.2)]'
+                          : 'border-zinc-800 bg-zinc-950/20 text-zinc-500 hover:bg-zinc-950/40 hover:text-zinc-400'
+                      }`}
+                    >
+                      <span className="block text-lg font-bold text-zinc-100">Research Scholar</span>
+                      <span className="block text-xs text-zinc-500 mt-1">PhD, Masters, or Academic Research</span>
+                    </button>
                   </div>
 
                   <motion.div
@@ -393,6 +490,19 @@ export function OnboardingFlow() {
                         <input
                           type="text"
                           placeholder="e.g. B.Tech Computer Science, UPSC Aspirant, Grade 12"
+                          value={academicField}
+                          onChange={(e) => setAcademicField(e.target.value)}
+                          className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-cyan-500 text-sm"
+                        />
+                      </div>
+                    ) : role === 'Research Scholar' ? (
+                      <div>
+                        <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
+                          Research Field / Department
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Machine Learning, Quantum Physics, Economics"
                           value={academicField}
                           onChange={(e) => setAcademicField(e.target.value)}
                           className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-cyan-500 text-sm"
@@ -430,8 +540,13 @@ export function OnboardingFlow() {
                   </div>
 
                   {/* Goal templates */}
+                  {(() => {
+                    const visibleTemplates = GOAL_TEMPLATES.filter(t =>
+                      t.role === 'Both' || t.role === role
+                    )
+                    return (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
-                    {GOAL_TEMPLATES.map((tpl) => (
+                    {visibleTemplates.map((tpl) => (
                       <button
                         key={tpl.title}
                         type="button"
@@ -453,7 +568,7 @@ export function OnboardingFlow() {
                       </button>
                     ))}
                     
-                    {/* Custom goal card option */}
+                    {/* Custom goal card option - always visible regardless of role */}
                     <button
                       type="button"
                       onClick={() => {
@@ -473,6 +588,8 @@ export function OnboardingFlow() {
                       <p className="text-xs text-zinc-500 mt-2">Design an individual habit sprint from scratch.</p>
                     </button>
                   </div>
+                    )
+                  })()}
 
                   {/* Custom goal text field */}
                   {goalTitle === 'custom' && (
@@ -809,10 +926,10 @@ export function OnboardingFlow() {
                         </div>
                         <div>
                           <span className="text-[10px] text-zinc-500 uppercase tracking-widest block font-bold">
-                            {role === 'Student' ? 'Academic Field' : 'Profession'}
+                            {role === 'Professional' ? 'Profession' : 'Field'}
                           </span>
                           <span className="text-sm font-semibold text-zinc-200 mt-0.5 truncate block">
-                            {role === 'Student' ? academicField : profession}
+                            {role === 'Professional' ? profession : academicField}
                           </span>
                         </div>
                       </div>

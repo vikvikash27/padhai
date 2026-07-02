@@ -8,13 +8,15 @@ import { StreakCard, StreakCardProps } from '@/components/dashboard/streak-card'
 import { ProgressCard } from '@/components/dashboard/progress-card'
 import { DailyCheckin } from '@/components/dashboard/daily-checkin'
 import { StudyHeatmap } from '@/components/dashboard/study-heatmap'
-import { GoalsGrid } from '@/components/dashboard/goals-grid'
+import { GoalsGrid } from '@/components/dashboard/goals-grid-client'
 import { MilestonesList } from '@/components/dashboard/milestones-list'
 import { RecentActivity } from '@/components/dashboard/recent-activity'
 import { QuoteWidget } from '@/components/dashboard/quote-widget'
 import { InactivityBanner } from '@/components/dashboard/inactivity-banner'
 import { WeeklyInsightsWidget } from '@/components/dashboard/weekly-insights-widget'
 import { FocusSessionLink } from '@/components/dashboard/focus-session-link'
+import { ReadingLog } from '@/components/dashboard/reading-log'
+import { fetchReadingCount } from '@/app/dashboard/reading-log/actions'
 import { getStreakSummary } from '@/lib/streak-service'
 import { fetchFreezeDays } from '@/lib/streak-queries'
 import { fetchLastReminder } from '@/lib/reminder-queries'
@@ -101,7 +103,7 @@ export default async function DashboardPage() {
   // 5. Fetch study sessions (with hours)
   const { data: dbSessions, error: sessionsError } = await supabase
     .from('study_sessions')
-    .select('id, session_date, hours')
+    .select('id, session_date, hours, notes')
     .eq('user_id', user.id)
     .order('session_date', { ascending: true })
 
@@ -109,6 +111,16 @@ export default async function DashboardPage() {
     console.error('Error fetching study sessions:', sessionsError)
   }
   const allSessions = dbSessions || []
+
+  // 5b. Fetch active goals for Reading Log dropdown
+  const { data: activeGoals } = await supabase
+    .from('goals')
+    .select('id, title')
+    .eq('user_id', user.id)
+    .eq('status', 'active')
+    .order('created_at', { ascending: false })
+
+  const userGoals = activeGoals || []
 
   // Create simple items mapping for checkin selection
   const checkinGoals = goals
@@ -123,12 +135,18 @@ export default async function DashboardPage() {
   let inactivityProps: React.ComponentProps<typeof InactivityBanner> | null = null
   let weeklyReport: WeeklyReport | null = null
 
+  let readingCount = 0
+  let readingLogEntries: any[] = []
+
   try {
-    const [summary, freezes, lastReminder] = await Promise.all([
+    const [summary, freezes, lastReminder, readingLogData] = await Promise.all([
       getStreakSummary(),
       fetchFreezeDays(supabase, user.id),
       fetchLastReminder(supabase, user.id),
+      fetchReadingCount(),
     ])
+
+    readingCount = readingLogData
 
     // Streak card data
     const FREEZE_TOTAL = 3
@@ -290,9 +308,9 @@ export default async function DashboardPage() {
                 </h2>
                 <p className="text-xs text-zinc-400 mt-0.5 truncate break-all">{profile.email}</p>
                 <p className="text-xs text-zinc-500 mt-1 truncate break-words">
-                  {profile.role === 'Student' ? 'Academic Field: ' : 'Profession: '}
+                  {profile.role === 'Professional' ? 'Profession: ' : 'Field: '}
                   <span className="text-zinc-300 font-medium">
-                    {profile.role === 'Student' ? profile.academic_field : profile.profession}
+                    {profile.role === 'Professional' ? profile.profession : profile.academic_field}
                   </span>
                 </p>
               </div>
@@ -343,6 +361,11 @@ export default async function DashboardPage() {
               <StaggerItem>
                 <DailyCheckin goals={checkinGoals} />
               </StaggerItem>
+              {profile.role === 'Research Scholar' && (
+                <StaggerItem>
+                  <ReadingLog initialCount={readingCount} userGoals={userGoals} />
+                </StaggerItem>
+              )}
             </div>
           </StaggerContainer>
 
